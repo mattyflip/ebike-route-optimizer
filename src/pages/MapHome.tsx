@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, DirectionsRendererF, MarkerF, InfoWindowF, PolylineF } from '@react-google-maps/api'
 import axios from 'axios'
 import { toPng } from 'html-to-image'
 import { auth, db, storage } from '../firebase'
@@ -1064,33 +1064,33 @@ function MapHome() {
             <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={10} onLoad={onMapLoad} onClick={handlePoiClick}>
               {response && (
                 <>
-                  <DirectionsRenderer options={{ directions: response, routeIndex: selectedRouteIndex }} />
+                  <DirectionsRendererF options={{ directions: response, routeIndex: selectedRouteIndex }} />
                   {(() => {
                     const res = response!;
                     return res.routes.map((r, i) => {
                       if (i === selectedRouteIndex) return null;
                       const routeColors = ['#34a853', '#9c27b0'];
-                      return <Polyline key={`alt-route-${i}`} path={r.overview_path.map(p => ({ lat: p.lat(), lng: p.lng() }))} options={{ strokeColor: routeColors[i - (i > selectedRouteIndex ? 1 : 0)], strokeOpacity: 0.7, strokeWeight: 4, clickable: true, zIndex: 1 }} onClick={() => { setSelectedRouteIndex(i); calculateMetrics(res, i); }} />
+                      return <PolylineF key={`alt-route-${i}`} path={r.overview_path.map(p => ({ lat: p.lat(), lng: p.lng() }))} options={{ strokeColor: routeColors[i - (i > selectedRouteIndex ? 1 : 0)], strokeOpacity: 0.7, strokeWeight: 4, clickable: true, zIndex: 1 }} onClick={() => { setSelectedRouteIndex(i); calculateMetrics(res, i); }} />
                     });
                   })()}
                 </>
               )}
-              {metrics?.deathPoint && <Marker position={metrics.deathPoint} label="☠️" />}
-              {pois.map(p => <Marker key={p.id} position={p.position} onClick={() => setSelectedPoi(p)} label={p.type === 'charging' ? { text: '⚡', color: 'white', fontWeight: 'bold' } : undefined} icon={{ url: p.type === 'charging' ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }} />)}
-              {rideParticipants.map(p => <Marker key={p.userId} position={{ lat: p.lat, lng: p.lng }} label={{ text: p.name, color: 'white', fontSize: '12px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.CIRCLE, fillColor: activeRide?.leaderId === p.userId ? '#34a853' : '#ff6600', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 8 }} />)}
-              {rideRoutePath.length > 1 && <Polyline path={rideRoutePath} options={{ strokeColor: '#4285F4', strokeOpacity: 0.8, strokeWeight: 5 }} />}
-              {recordedPath && recordedPath.length > 1 && <Polyline path={recordedPath} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
-              {rideRouteStops.map((s, i) => <Marker key={`stop-${i}`} position={{ lat: s.lat, lng: s.lng }} label={{ text: s.label, color: '#4285F4', fontSize: '11px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 5 }} />)}
-              {activeRide?.leaderTrail && activeRide.leaderTrail.length > 1 && <Polyline path={activeRide.leaderTrail} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
-              {userLocation && <Marker position={userLocation} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }} />}
+              {metrics?.deathPoint && <MarkerF position={metrics.deathPoint} label="☠️" />}
+              {pois.map(p => <MarkerF key={p.id} position={p.position} onClick={() => setSelectedPoi(p)} label={p.type === 'charging' ? { text: '⚡', color: 'white', fontWeight: 'bold' } : undefined} icon={{ url: p.type === 'charging' ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }} />)}
+              {rideParticipants.map(p => <MarkerF key={p.userId} position={{ lat: p.lat, lng: p.lng }} label={{ text: p.name, color: 'white', fontSize: '12px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.CIRCLE, fillColor: activeRide?.leaderId === p.userId ? '#34a853' : '#ff6600', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 8 }} />)}
+              {rideRoutePath.length > 1 && <PolylineF path={rideRoutePath} options={{ strokeColor: '#4285F4', strokeOpacity: 0.8, strokeWeight: 5 }} />}
+              {recordedPath && recordedPath.length > 1 && <PolylineF path={recordedPath} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
+              {rideRouteStops.map((s, i) => <MarkerF key={`stop-${i}`} position={{ lat: s.lat, lng: s.lng }} label={{ text: s.label, color: '#4285F4', fontSize: '11px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 5 }} />)}
+              {activeRide?.leaderTrail && activeRide.leaderTrail.length > 1 && <PolylineF path={activeRide.leaderTrail} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
+              {userLocation && <MarkerF position={userLocation} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }} />}
               {selectedPoi && (
-                <InfoWindow position={selectedPoi.position} onCloseClick={() => setSelectedPoi(null)}>
+                <InfoWindowF position={selectedPoi.position} onCloseClick={() => setSelectedPoi(null)}>
                   <div style={{ color: 'black', padding: '0.4rem' }}>
                     <div style={{ fontWeight: 'bold', fontSize: '0.9rem', marginBottom: '0.2rem' }}>{selectedPoi.name}</div>
                     <div style={{ fontSize: '0.75rem', color: '#444', marginBottom: '0.8rem' }}>{selectedPoi.address}</div>
                     <button onClick={() => addPoiToRoute(selectedPoi)} style={{ width: '100%', padding: '0.5rem', background: '#ff6600', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '0.75rem', cursor: 'pointer' }}>Add to Route</button>
                   </div>
-                </InfoWindow>
+                </InfoWindowF>
               )}
             </GoogleMap>
           ) : <div style={{ color: 'white', padding: '2rem' }}>Loading Maps...</div>}

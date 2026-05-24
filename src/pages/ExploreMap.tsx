@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, PolylineF, MarkerF } from '@react-google-maps/api';
 import { auth, db } from '../firebase';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -234,12 +234,12 @@ const ExploreMap: React.FC = () => {
             }}
           >
             {path.length > 1 && (
-              <Polyline 
+              <PolylineF 
                 path={path}
                 options={{ strokeColor: '#ff6600', strokeOpacity: 1, strokeWeight: 5 }}
               />
             )}
-            {path.length > 0 && <Marker position={path[path.length - 1]} icon={{ url: '/app-icon.png', scaledSize: new google.maps.Size(32, 32) }} />}
+            {path.length > 0 && <MarkerF position={path[path.length - 1]} icon={{ url: '/app-icon.png', scaledSize: new google.maps.Size(32, 32) }} />}
           </GoogleMap>
         )}
 
