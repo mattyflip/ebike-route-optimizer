@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, DirectionsService, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api'
 import axios from 'axios'
 import { toPng } from 'html-to-image'
 import { auth, db, storage } from '../firebase'
@@ -619,7 +619,7 @@ function MapHome() {
     }
   }, [isLoading, response, trip, isLoaded]);
 
-  const directionsCallback = (result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
+  const directionsCallback = (result: google.maps.DirectionsResult | null, status: any) => {
     if (status === 'OK' && result) { setResponse(result); setSelectedRouteIndex(0); calculateMetrics(result, 0); }
     else { setIsLoading(false); }
   };

@@ -8,16 +8,11 @@ import wattSonDiagram from '../assets/watt-son-how-it-works.png'
 
 const About: React.FC = () => {
   const [user, setUser] = useState<any>(null);
-  const [userData, setUserData] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async u => {
       setUser(u);
-      if (u) {
-        const snap = await getDoc(doc(db, "users", u.uid));
-        if (snap.exists()) setUserData(snap.data());
-      }
     });
     return () => unsub();
   }, []);

@@ -22,7 +22,6 @@ const ForumHub: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
-  const [userData, setUserData] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newCommName, setNewCommName] = useState('');
   const [newCommDesc, setNewCommDesc] = useState('');
@@ -40,10 +39,7 @@ const ForumHub: React.FC = () => {
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async u => {
       setUser(u);
-      if (u) {
-        const snap = await getDoc(doc(db, "users", u.uid));
-        if (snap.exists()) setUserData(snap.data());
-      } else {
+      if (!u) {
         // Prompt for account creation if guest
         setShowAuthModal(true);
       }
