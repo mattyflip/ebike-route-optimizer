@@ -72,6 +72,8 @@ const ThreadView: React.FC = () => {
         setAdminThreadTitle(data.title);
         setAdminThreadBody(data.body || '');
       }
+    }, (error) => {
+      console.error("ThreadView.tsx: Thread listener failed", error);
     });
 
     // Fetch Comments
@@ -84,6 +86,9 @@ const ThreadView: React.FC = () => {
       const fetched: ForumComment[] = [];
       snap.forEach(docSnap => fetched.push({ id: docSnap.id, ...docSnap.data() } as ForumComment));
       setComments(fetched);
+      setLoading(false);
+    }, (error) => {
+      console.error("ThreadView.tsx: Comments listener failed", error);
       setLoading(false);
     });
 

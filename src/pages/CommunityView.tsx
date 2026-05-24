@@ -80,6 +80,9 @@ const CommunityView: React.FC = () => {
       });
       setThreads(fetched);
       setLoading(false);
+    }, (error) => {
+      console.error("CommunityView.tsx: Threads listener failed", error);
+      setLoading(false);
     });
 
     return () => unsubscribe();

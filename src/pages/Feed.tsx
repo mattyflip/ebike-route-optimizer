@@ -144,6 +144,9 @@ const Feed: React.FC = () => {
       snap.forEach(docSnap => fetchedPosts.push({ id: docSnap.id, ...docSnap.data() } as Post));
       setPosts(fetchedPosts);
       setLoading(false);
+    }, (error) => {
+      console.error("Feed.tsx: Posts listener failed", error);
+      setLoading(false);
     });
     return () => unsubscribe();
   }, []);

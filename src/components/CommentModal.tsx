@@ -37,6 +37,9 @@ const CommentModal: React.FC<CommentModalProps> = ({ postId, postAuthorId, onClo
       });
       setComments(fetched);
       setLoading(false);
+    }, (error) => {
+      console.error("CommentModal.tsx: Comments listener failed", error);
+      setLoading(false);
     });
 
     return () => unsubscribe();

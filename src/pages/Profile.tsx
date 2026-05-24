@@ -199,6 +199,9 @@ const Profile: React.FC = () => {
         });
       }
       setLoading(false);
+    }, (error) => {
+      console.error("Profile.tsx: Profile listener failed", error);
+      setLoading(false);
     });
 
     return () => { 
@@ -214,6 +217,8 @@ const Profile: React.FC = () => {
       const rides: any[] = [];
       snap.forEach(docSnap => rides.push({ id: docSnap.id, ...docSnap.data() }));
       setRecordedRides(rides);
+    }, (error) => {
+      console.error("Profile.tsx: Recorded rides listener failed", error);
     });
   };
 
@@ -322,6 +327,8 @@ const Profile: React.FC = () => {
       snap.forEach(docSnap => reviews.push({ id: docSnap.id, ...docSnap.data() } as Review));
       const sorted = reviews.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
       setUserReviews(sorted);
+    }, (error) => {
+      console.error("Profile.tsx: User reviews listener failed", error);
     });
   };
 
@@ -366,6 +373,8 @@ const Profile: React.FC = () => {
       snap.forEach(docSnap => comments.push({ id: docSnap.id, ...docSnap.data() }));
       const sorted = comments.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
       setReviewComments(prev => ({ ...prev, [reviewId]: sorted }));
+    }, (error) => {
+      console.error("Profile.tsx: Review comments listener failed", error);
     });
   };
 
@@ -393,7 +402,7 @@ const Profile: React.FC = () => {
       const sorted = posts.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
       setUserPosts(sorted);
     }, (error) => {
-      console.error("User posts snapshot error:", error);
+      console.error("Profile.tsx: User posts listener failed", error);
     });
   };
 

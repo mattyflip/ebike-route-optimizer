@@ -43,6 +43,9 @@ const Notifications: React.FC = () => {
       });
       setNotifications(notifs);
       setLoading(false);
+    }, (error) => {
+      console.error("Notifications.tsx: Notifications listener failed", error);
+      setLoading(false);
     });
 
     return () => unsub();

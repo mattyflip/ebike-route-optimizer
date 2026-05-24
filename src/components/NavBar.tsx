@@ -24,6 +24,8 @@ const NavBar: React.FC<NavBarProps> = ({ user, onShowInstall, onShowAuth }) => {
 
     const unsubscribe = onSnapshot(q, (snap) => {
       setUnreadCount(snap.size);
+    }, (error) => {
+      console.error("Notifications listener failed:", error);
     });
 
     return () => unsubscribe();
