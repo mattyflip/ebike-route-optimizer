@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, DirectionsRenderer, InfoWindowF, PolylineF } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, DirectionsRenderer, InfoWindowF, PolylineF, Autocomplete } from '@react-google-maps/api'
 import axios from 'axios'
 import { toPng } from 'html-to-image'
 import { auth, db, storage } from '../firebase'
@@ -160,6 +160,20 @@ function MapHome() {
 
   // Reorderable locations state
   const [locations, setLocations] = useState<string[]>(['', '', '', '', '']);
+  const autocompleteRefs = useRef<(google.maps.places.Autocomplete | null)[]>([]);
+
+  const onAutocompleteLoad = (index: number, autocomplete: google.maps.places.Autocomplete) => {
+    autocompleteRefs.current[index] = autocomplete;
+  };
+
+  const onPlaceChanged = (index: number) => {
+    const autocomplete = autocompleteRefs.current[index];
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      const addr = place.formatted_address || place.name;
+      if (addr) updateLocation(index, addr);
+    }
+  };
 
   const syncLocationsToStates = (locs: string[]) => {
     const filtered = locs.filter(l => l.trim() !== '');
@@ -845,7 +859,12 @@ function MapHome() {
               return (
                 <div key={index} style={{ display: 'flex', gap: '0.4rem', marginTop: index > 0 ? '0.5rem' : '0', alignItems: 'center' }}>
                   <div style={{ flex: 1, display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                    <input type="text" placeholder={index === 0 ? "Start" : `Stop ${index}`} value={loc} onChange={e => updateLocation(index, e.target.value)} style={{ flex: 1 }} />
+                    <Autocomplete
+                      onLoad={(auto) => onAutocompleteLoad(index, auto)}
+                      onPlaceChanged={() => onPlaceChanged(index)}
+                    >
+                      <input type="text" placeholder={index === 0 ? "Start" : `Stop ${index}`} value={loc} onChange={e => updateLocation(index, e.target.value)} style={{ flex: 1 }} />
+                    </Autocomplete>
                     {index === 0 && <button onClick={useCurrentLocation} style={{ background: 'none', border: 'none', fontSize: '1.2rem', padding: 0, cursor: 'pointer' }} title="Locate Me">📍</button>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
