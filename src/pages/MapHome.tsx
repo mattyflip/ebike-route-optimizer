@@ -393,7 +393,7 @@ function MapHome() {
   }, [activeRide?.id, user]);
 
   useEffect(() => {
-    if (!activeRide || !user) return;
+    if (!activeRide || !user || !isLoaded) return;
     const interval = setInterval(() => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(async (pos) => {
@@ -406,23 +406,26 @@ function MapHome() {
             await updateDoc(doc(db, "group_rides", activeRide.id), { leaderTrail: arrayUnion(loc) });
           }
           if (user.uid === activeRide.creatorId && rideRouteStops.length > 0 && rideParticipants.length > 0) {
-            const dest = rideRouteStops[rideRouteStops.length - 1];
-            const destLoc = new google.maps.LatLng(dest.lat, dest.lng);
-            const allNear = rideParticipants.every(p => {
-              const pLoc = new google.maps.LatLng(p.lat, p.lng);
-              return google.maps.geometry.spherical.computeDistanceBetween(pLoc, destLoc) < 200;
-            });
-            if (allNear && rideParticipants.length > 0) {
-              await updateDoc(doc(db, "group_rides", activeRide.id), { status: 'offline' });
-              localStorage.removeItem('active_ride_id');
-              setActiveRide(null); setRideParticipants([]); setRideRoutePath([]); setRideRouteStops([]);
+            const g = (window as any).google;
+            if (g?.maps) {
+              const dest = rideRouteStops[rideRouteStops.length - 1];
+              const destLoc = new g.maps.LatLng(dest.lat, dest.lng);
+              const allNear = rideParticipants.every(p => {
+                const pLoc = new g.maps.LatLng(p.lat, p.lng);
+                return g.maps.geometry.spherical.computeDistanceBetween(pLoc, destLoc) < 200;
+              });
+              if (allNear && rideParticipants.length > 0) {
+                await updateDoc(doc(db, "group_rides", activeRide.id), { status: 'offline' });
+                localStorage.removeItem('active_ride_id');
+                setActiveRide(null); setRideParticipants([]); setRideRoutePath([]); setRideRouteStops([]);
+              }
             }
           }
         });
       }
     }, 15000);
     return () => clearInterval(interval);
-  }, [activeRide?.id, user, userData?.username, rideRouteStops, rideParticipants]);
+  }, [activeRide?.id, user, userData?.username, rideRouteStops, rideParticipants, isLoaded]);
 
   useEffect(() => {
     if (!activeRide) { 
@@ -859,12 +862,16 @@ function MapHome() {
               return (
                 <div key={index} style={{ display: 'flex', gap: '0.4rem', marginTop: index > 0 ? '0.5rem' : '0', alignItems: 'center' }}>
                   <div style={{ flex: 1, display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-                    <Autocomplete
-                      onLoad={(auto) => onAutocompleteLoad(index, auto)}
-                      onPlaceChanged={() => onPlaceChanged(index)}
-                    >
+                    {isLoaded && typeof google !== 'undefined' ? (
+                      <Autocomplete
+                        onLoad={(auto) => onAutocompleteLoad(index, auto)}
+                        onPlaceChanged={() => onPlaceChanged(index)}
+                      >
+                        <input type="text" placeholder={index === 0 ? "Start" : `Stop ${index}`} value={loc} onChange={e => updateLocation(index, e.target.value)} style={{ flex: 1 }} />
+                      </Autocomplete>
+                    ) : (
                       <input type="text" placeholder={index === 0 ? "Start" : `Stop ${index}`} value={loc} onChange={e => updateLocation(index, e.target.value)} style={{ flex: 1 }} />
-                    </Autocomplete>
+                    )}
                     {index === 0 && <button onClick={useCurrentLocation} style={{ background: 'none', border: 'none', fontSize: '1.2rem', padding: 0, cursor: 'pointer' }} title="Locate Me">📍</button>}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>

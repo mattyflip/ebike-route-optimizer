@@ -86,6 +86,10 @@ const ExploreMap: React.FC = () => {
   }, [isTracking, lastMovementTime]);
 
   const startTracking = () => {
+    if (!isLoaded || typeof google === 'undefined') {
+      alert("Please wait for the map to finish loading.");
+      return;
+    }
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser.");
       return;
