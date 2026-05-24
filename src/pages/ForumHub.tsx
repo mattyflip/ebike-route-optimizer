@@ -6,7 +6,6 @@ import NavBar from '../components/NavBar'
 import InstallTutorial from '../components/InstallTutorial'
 import AuthModal from '../components/AuthModal'
 import UniversalSearch from '../components/UniversalSearch'
-import AdBanner from '../components/AdBanner'
 import SEO from '../components/SEO'
 
 interface Community {
@@ -180,17 +179,14 @@ const ForumHub: React.FC = () => {
                         >✏️</button>
                       )}
                     </div>
-                  ))}
-                </div>
-                
-                <div style={{ marginTop: '4rem' }}>
-                  <AdBanner isPro={userData?.isPro || false} />
-                </div>
-              </>
-            )}
-          </>
-        )}
-      </main>
+                  </div>
+                  </div>
+                  </>
+                  )}
+                  </>
+                  )}
+                  </main>
+
 
       {showCreateModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(10px)' }}>

@@ -3,7 +3,6 @@ import { auth, db } from '../firebase'
 import { getDoc, doc } from 'firebase/firestore'
 import NavBar from '../components/NavBar'
 import AuthModal from '../components/AuthModal'
-import AdBanner from '../components/AdBanner'
 import SEO from '../components/SEO'
 import wattSonDiagram from '../assets/watt-son-how-it-works.png'
 
@@ -87,8 +86,6 @@ const About: React.FC = () => {
             </div>
           </div>
         </section>
-
-        <AdBanner isPro={userData?.isPro || false} />
 
         <div style={{ textAlign: 'center', marginTop: '6rem', padding: '4rem 0', borderTop: '1px solid #222' }}>
           <h2 style={{ marginBottom: '2rem' }}>Ready to plan your next trip?</h2>

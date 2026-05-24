@@ -7,7 +7,6 @@ import { onAuthStateChanged } from 'firebase/auth'
 import type { User } from 'firebase/auth'
 import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, deleteDoc, query, where, onSnapshot, setDoc, getDocs, arrayUnion } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import AdBanner from '../components/AdBanner'
 import TermsOfService from '../components/TermsOfService'
 import InstallTutorial from '../components/InstallTutorial'
 import NavBar from '../components/NavBar'
@@ -602,6 +601,24 @@ function MapHome() {
     } catch (e) { console.error(e); setIsLoading(false); }
   };
 
+  useEffect(() => {
+    if (isLoading && !response && trip.origin && trip.destination && isLoaded) {
+      const service = new google.maps.DirectionsService();
+      const wps = trip.waypoints?.filter(w => w.trim()).map(w => ({ location: w, stopover: true } as google.maps.DirectionsWaypoint)) || [];
+      const travelMode = wps.length > 0 ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.BICYCLING;
+      
+      service.route({
+        origin: trip.origin,
+        destination: trip.destination,
+        waypoints: wps.length > 0 ? wps : undefined,
+        travelMode,
+        provideRouteAlternatives: true
+      }, (result, status) => {
+        directionsCallback(result, status);
+      });
+    }
+  }, [isLoading, response, trip, isLoaded]);
+
   const directionsCallback = (result: google.maps.DirectionsResult | null, status: google.maps.DirectionsStatus) => {
     if (status === 'OK' && result) { setResponse(result); setSelectedRouteIndex(0); calculateMetrics(result, 0); }
     else { setIsLoading(false); }
@@ -1004,7 +1021,6 @@ function MapHome() {
               <button onClick={startNavigation} style={{ width: '100%', padding: '1.2rem', background: 'linear-gradient(to bottom, #ff8800, #ff6600)', color: 'white', border: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1.2rem', boxShadow: '0 4px 15px rgba(255,102,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>🏁 START TRIP</button>
             </div>
           )}
-          <AdBanner isPro={isPro} />
         </aside>
         <main style={{ flex: 1, position: 'relative' }}>
           {isNavigating && response && (
@@ -1040,11 +1056,6 @@ function MapHome() {
           </div>
           {isLoaded ? (
             <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={10} onLoad={onMapLoad} onClick={handlePoiClick}>
-              {trip.origin && trip.destination && isLoading && !response && (() => {
-                const wps = trip.waypoints?.filter(w => w.trim()).map(w => ({ location: w, stopover: true } as google.maps.DirectionsWaypoint)) || [];
-                const travelMode = wps.length > 0 ? google.maps.TravelMode.DRIVING : google.maps.TravelMode.BICYCLING;
-                return <DirectionsService options={{ origin: trip.origin, destination: trip.destination, waypoints: wps.length > 0 ? wps : undefined, travelMode, provideRouteAlternatives: true }} callback={directionsCallback} />
-              })()}
               {response && (
                 <>
                   <DirectionsRenderer options={{ directions: response, routeIndex: selectedRouteIndex }} />
