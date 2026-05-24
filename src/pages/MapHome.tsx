@@ -12,10 +12,11 @@ import InstallTutorial from '../components/InstallTutorial'
 import NavBar from '../components/NavBar'
 import AuthModal from '../components/AuthModal'
 import WelcomeModal from '../components/WelcomeModal'
+import AdvancedMarker from '../components/AdvancedMarker'
 import { STATE_COORDINATES, calculateAge, getNearestState, EBIKE_LAWS } from '../utils/ebikeLaws'
 import SEO from '../components/SEO'
 
-const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
+const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geometry", "marker"];
 
 interface GroupRide {
   id: string;
@@ -792,7 +793,8 @@ function MapHome() {
     } catch (e) { setIsLoading(false); }
   };
 
-  const onMapLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; }, []);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const onMapLoad = useCallback((map: google.maps.Map) => { mapRef.current = map; setMapInstance(map); }, []);
 
   const handlePoiClick = (e: any) => {
     if (e.placeId && mapRef.current) {
@@ -1061,7 +1063,7 @@ function MapHome() {
             <button onClick={() => searchPOIs('cafe')} style={{ padding: '1rem 1.5rem', background: 'rgba(20,20,20,0.95)', color: 'white', border: '1px solid #333', borderRadius: '16px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '0.6rem', boxShadow: '0 8px 30px rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)' }}><span style={{ color: '#ffcc00', fontSize: '1.2rem' }}>☕</span> Cafes</button>
           </div>
           {isLoaded ? (
-            <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={10} onLoad={onMapLoad} onClick={handlePoiClick}>
+            <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={10} onLoad={onMapLoad} onClick={handlePoiClick} options={{ mapId: 'cb8a2007ae47462f99125f8a' }}>
               {response && (
                 <>
                   <DirectionsRenderer options={{ directions: response, routeIndex: selectedRouteIndex }} />
@@ -1075,14 +1077,35 @@ function MapHome() {
                   })()}
                 </>
               )}
-              {metrics?.deathPoint && <MarkerF position={metrics.deathPoint} label="☠️" />}
-              {pois.map(p => <MarkerF key={p.id} position={p.position} onClick={() => setSelectedPoi(p)} label={p.type === 'charging' ? { text: '⚡', color: 'white', fontWeight: 'bold' } : undefined} icon={{ url: p.type === 'charging' ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png' }} />)}
-              {rideParticipants.map(p => <MarkerF key={p.userId} position={{ lat: p.lat, lng: p.lng }} label={{ text: p.name, color: 'white', fontSize: '12px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.CIRCLE, fillColor: activeRide?.leaderId === p.userId ? '#34a853' : '#ff6600', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 8 }} />)}
+              {metrics?.deathPoint && <AdvancedMarker map={mapInstance} position={metrics.deathPoint} title="☠️ Battery Death Point" />}
+              {pois.map(p => (
+                <AdvancedMarker key={p.id} map={mapInstance} position={p.position} onClick={() => setSelectedPoi(p)} title={p.name}>
+                  <div style={{ transform: 'translate(-50%, -100%)', background: p.type === 'charging' ? '#34a853' : '#4285F4', padding: '4px', borderRadius: '50%', border: '2px solid white', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1rem', fontWeight: 'bold' }}>
+                    {p.type === 'charging' ? '⚡' : '📍'}
+                  </div>
+                </AdvancedMarker>
+              ))}
+              {rideParticipants.map(p => (
+                <AdvancedMarker key={p.userId} map={mapInstance} position={{ lat: p.lat, lng: p.lng }} title={p.name}>
+                  <div style={{ transform: 'translate(-50%, -50%)' }}>
+                    <div style={{ background: activeRide?.leaderId === p.userId ? '#34a853' : '#ff6600', width: '16px', height: '16px', borderRadius: '50%', border: '2px solid white' }} />
+                    <div className="rider-label" style={{ color: 'white', fontSize: '10px', fontWeight: 'bold', whiteSpace: 'nowrap', marginTop: '2px', textAlign: 'center' }}>{p.name}</div>
+                  </div>
+                </AdvancedMarker>
+              ))}
               {rideRoutePath.length > 1 && <PolylineF path={rideRoutePath} options={{ strokeColor: '#4285F4', strokeOpacity: 0.8, strokeWeight: 5 }} />}
               {recordedPath && recordedPath.length > 1 && <PolylineF path={recordedPath} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
-              {rideRouteStops.map((s, i) => <MarkerF key={`stop-${i}`} position={{ lat: s.lat, lng: s.lng }} label={{ text: s.label, color: '#4285F4', fontSize: '11px', fontWeight: 'bold', className: 'rider-label' }} icon={{ path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW, fillColor: '#4285F4', fillOpacity: 1, strokeColor: 'white', strokeWeight: 2, scale: 5 }} />)}
+              {rideRouteStops.map((s, i) => (
+                <AdvancedMarker key={`stop-${i}`} map={mapInstance} position={{ lat: s.lat, lng: s.lng }} title={s.label}>
+                   <div style={{ color: '#4285F4', fontSize: '1.5rem', transform: 'translate(-50%, -100%)' }}>🚩</div>
+                </AdvancedMarker>
+              ))}
               {activeRide?.leaderTrail && activeRide.leaderTrail.length > 1 && <PolylineF path={activeRide.leaderTrail} options={{ strokeColor: '#ff6600', strokeOpacity: 0.9, strokeWeight: 6 }} />}
-              {userLocation && <MarkerF position={userLocation} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: "#4285F4", fillOpacity: 1, strokeColor: "white", strokeWeight: 2 }} />}
+              {userLocation && (
+                <AdvancedMarker map={mapInstance} position={userLocation} title="Your Location">
+                   <div style={{ width: '20px', height: '20px', background: '#4285F4', borderRadius: '50%', border: '3px solid white', boxShadow: '0 0 10px rgba(0,0,0,0.5)', transform: 'translate(-50%, -50%)' }} />
+                </AdvancedMarker>
+              )}
               {selectedPoi && (
                 <InfoWindowF position={selectedPoi.position} onCloseClick={() => setSelectedPoi(null)}>
                   <div style={{ color: 'black', padding: '0.4rem' }}>

@@ -30,28 +30,24 @@ const UniversalSearch: React.FC = () => {
     setIsSearching(true)
     setShowResults(true)
     try {
-      const lowerSearch = searchTerm.toLowerCase()
-      const usersRef = collection(db, "users")
+      const lowerSearch = searchTerm.toLowerCase().trim();
+      const usersRef = collection(db, "users");
+      const postsRef = collection(db, "posts");
       
-      // Parallel Search: Search both original and lowercase fields to catch all users (legacy & new)
-      const qLower = query(usersRef, where("usernameLowercase", ">=", lowerSearch), where("usernameLowercase", "<=", lowerSearch + '\uf8ff'), limit(10))
-      const qOrig = query(usersRef, where("username", ">=", searchTerm), where("username", "<=", searchTerm + '\uf8ff'), limit(10))
+      // Parallel Search: Search users and fetch posts concurrently
+      const [snapLower, snapOrig, postSnap] = await Promise.all([
+        getDocs(query(usersRef, where("usernameLowercase", ">=", lowerSearch), where("usernameLowercase", "<=", lowerSearch + '\uf8ff'), limit(10))).catch(() => ({ docs: [] })), 
+        getDocs(query(usersRef, where("username", ">=", searchTerm), where("username", "<=", searchTerm + '\uf8ff'), limit(10))).catch(() => ({ docs: [] })),
+        getDocs(query(postsRef, limit(100))).catch(() => ({ docs: [] }))
+      ]);
 
-      const [snapLower, snapOrig] = await Promise.all([
-        getDocs(qLower).catch(() => ({ docs: [] })), 
-        getDocs(qOrig).catch(() => ({ docs: [] }))
-      ])
+      // Deduplicate users
+      const usersMap = new Map();
+      snapLower.docs.forEach(doc => usersMap.set(doc.id, { id: doc.id, ...doc.data() }));
+      snapOrig.docs.forEach(doc => usersMap.set(doc.id, { id: doc.id, ...doc.data() }));
+      const foundUsers = Array.from(usersMap.values()).slice(0, 5);
 
-      // Deduplicate results by user ID
-      const usersMap = new Map()
-      snapLower.docs.forEach(doc => usersMap.set(doc.id, { id: doc.id, ...doc.data() }))
-      snapOrig.docs.forEach(doc => usersMap.set(doc.id, { id: doc.id, ...doc.data() }))
-      const foundUsers = Array.from(usersMap.values()).slice(0, 5)
-
-      // Search Posts by caption, city, or homeRegion
-      const postsRef = collection(db, "posts")
-      const postQuery = query(postsRef, limit(30))
-      const postSnap = await getDocs(postQuery)
+      // Client-side filter for posts (caption, city, homeRegion)
       const foundPosts = postSnap.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
         .filter((p: any) => 
@@ -59,13 +55,13 @@ const UniversalSearch: React.FC = () => {
           p.city?.toLowerCase().includes(lowerSearch) ||
           p.homeRegion?.toLowerCase().includes(lowerSearch)
         )
-        .slice(0, 8)
+        .slice(0, 10);
 
-      setResults({ users: foundUsers, posts: foundPosts })
+      setResults({ users: foundUsers, posts: foundPosts });
     } catch (e) {
-      console.error("Search failed", e)
+      console.error("UniversalSearch execution failed:", e);
     } finally {
-      setIsSearching(false)
+      setIsSearching(false);
     }
   }
 

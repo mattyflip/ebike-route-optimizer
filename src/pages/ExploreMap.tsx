@@ -7,8 +7,9 @@ import NavBar from '../components/NavBar';
 import AuthModal from '../components/AuthModal';
 import InstallTutorial from '../components/InstallTutorial';
 import SEO from '../components/SEO';
+import AdvancedMarker from '../components/AdvancedMarker';
 
-const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
+const LIBRARIES: ("places" | "geometry" | "marker")[] = ["places", "geometry", "marker"];
 
 const ExploreMap: React.FC = () => {
   const navigate = useNavigate();
@@ -28,12 +29,18 @@ const ExploreMap: React.FC = () => {
   
   const watchId = useRef<number | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
     libraries: LIBRARIES
   });
+
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+    setMapInstance(map);
+  }, []);
 
   useEffect(() => {
     const unsub = auth.onAuthStateChanged(async (u) => {
@@ -218,8 +225,9 @@ const ExploreMap: React.FC = () => {
             mapContainerStyle={{ width: '100%', height: '100%' }}
             center={path.length > 0 ? path[path.length - 1] : { lat: 40.7128, lng: -74.0060 }}
             zoom={15}
-            onLoad={map => { mapRef.current = map; }}
+            onLoad={onMapLoad}
             options={{
+              mapId: 'cb8a2007ae47462f99125f8a',
               disableDefaultUI: true,
               styles: [
                 { elementType: 'geometry', stylers: [{ color: '#242f3e' }] },
@@ -239,7 +247,11 @@ const ExploreMap: React.FC = () => {
                 options={{ strokeColor: '#ff6600', strokeOpacity: 1, strokeWeight: 5 }}
               />
             )}
-            {path.length > 0 && <MarkerF position={path[path.length - 1]} icon={{ url: '/app-icon.png', scaledSize: new google.maps.Size(32, 32) }} />}
+            {path.length > 0 && (
+              <AdvancedMarker map={mapInstance} position={path[path.length - 1]} title="Your Location">
+                <img src="/app-icon.png" style={{ width: '32px', height: '32px', transform: 'translate(-50%, -100%)' }} alt="Position" />
+              </AdvancedMarker>
+            )}
           </GoogleMap>
         )}
 
