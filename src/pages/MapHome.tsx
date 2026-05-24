@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { GoogleMap, useJsApiLoader, DirectionsRendererF, MarkerF, InfoWindowF, PolylineF } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, DirectionsRenderer, MarkerF, InfoWindowF, PolylineF } from '@react-google-maps/api'
 import axios from 'axios'
 import { toPng } from 'html-to-image'
 import { auth, db, storage } from '../firebase'
