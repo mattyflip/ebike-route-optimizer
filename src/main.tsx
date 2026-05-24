@@ -4,6 +4,7 @@ import ReactGA from "react-ga4"
 import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 import App from './App.tsx'
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 
 // Initialize GA4
 const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
@@ -15,7 +16,9 @@ if (GA_ID) {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </HelmetProvider>
   </StrictMode>,
 )
