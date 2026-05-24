@@ -129,7 +129,10 @@ export const STATE_COORDINATES: Record<string, { lat: number, lng: number }> = {
 };
 
 export function calculateAge(birthday: string): number {
+  if (!birthday) return 0;
   const birthDate = new Date(birthday);
+  if (isNaN(birthDate.getTime())) return 0;
+  
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();

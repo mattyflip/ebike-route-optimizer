@@ -828,14 +828,16 @@ const Profile: React.FC = () => {
               )}
             </div>
 
-            <div style={{ borderTop: '1px solid #333', marginTop: '1rem', paddingTop: '1rem' }}>
-               <label style={{ display: 'block', color: '#555', fontSize: '0.6rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>System Information (Read-Only)</label>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>Email:</span> {profileData.email}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>UID:</span> {profileData.id}</div>
-                  <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>Joined:</span> {profileData.createdAt?.toDate().toLocaleDateString()}</div>
-               </div>
-            </div>
+            {canEdit && (
+              <div style={{ borderTop: '1px solid #333', marginTop: '1rem', paddingTop: '1rem' }}>
+                <label style={{ display: 'block', color: '#555', fontSize: '0.6rem', textTransform: 'uppercase', marginBottom: '0.5rem' }}>System Information (Private)</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>Email:</span> {profileData.email}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>UID:</span> {profileData.id}</div>
+                    <div style={{ fontSize: '0.7rem', color: '#888' }}><span style={{ color: '#555' }}>Joined:</span> {profileData.createdAt?.toDate().toLocaleDateString()}</div>
+                </div>
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
               <button onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: '1rem', background: '#333', color: 'white', border: 'none', borderRadius: '12px' }}>Cancel</button>
