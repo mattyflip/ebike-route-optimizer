@@ -49,15 +49,23 @@ const ForumHub: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!user) {
+      setCommunities([]);
+      setLoading(false);
+      return;
+    }
     const q = query(collection(db, "communities"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snap) => {
       const fetched: Community[] = [];
       snap.forEach(docSnap => fetched.push({ id: docSnap.id, ...docSnap.data() } as Community));
       setCommunities(fetched);
       setLoading(false);
+    }, (error) => {
+      console.error("Communities listener failed:", error);
+      setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [user]);
 
   const handleCreateCommunity = async () => {
     if (!user || !newCommName.trim()) return;

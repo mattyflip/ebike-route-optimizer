@@ -358,20 +358,24 @@ function MapHome() {
       const rides: GroupRide[] = [];
       snap.forEach(d => rides.push({ id: d.id, ...d.data() } as GroupRide));
       setPublicRides(rides);
+    }, (error) => {
+      console.error("Public rides listener failed:", error);
     });
     return () => unsub();
   }, [user]);
 
   useEffect(() => {
-    if (!activeRide) return;
+    if (!activeRide || !user) return;
     const q = collection(db, `group_rides/${activeRide.id}/participants`);
     const unsub = onSnapshot(q, (snap) => {
       const parts: Participant[] = [];
       snap.forEach(d => parts.push(d.data() as Participant));
       setRideParticipants(parts);
+    }, (error) => {
+      console.error("Ride participants listener failed:", error);
     });
     return () => unsub();
-  }, [activeRide?.id]);
+  }, [activeRide?.id, user]);
 
   useEffect(() => {
     if (!activeRide || !user) return;
@@ -422,7 +426,9 @@ function MapHome() {
         setRideRoutePath([]);
         setRideRouteStops([]);
       }
-    }, console.error);
+    }, (error) => {
+      console.error("Ride details listener failed:", error);
+    });
     return () => unsub();
   }, [activeRide?.id]);
 
