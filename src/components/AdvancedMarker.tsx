@@ -33,7 +33,7 @@ const AdvancedMarker = ({ map, position, children, onClick, title, zIndex }: Adv
 
     markerRef.current = marker;
 
-    const listener = marker.addListener('click', () => {
+    const listener = marker.addListener('gmp-click', () => {
       if (onClick) onClick();
     });
 
