@@ -1064,7 +1064,7 @@ function MapHome() {
             <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={10} onLoad={onMapLoad} onClick={handlePoiClick}>
               {response && (
                 <>
-                  <DirectionsRendererF options={{ directions: response, routeIndex: selectedRouteIndex }} />
+                  <DirectionsRenderer options={{ directions: response, routeIndex: selectedRouteIndex }} />
                   {(() => {
                     const res = response!;
                     return res.routes.map((r, i) => {
