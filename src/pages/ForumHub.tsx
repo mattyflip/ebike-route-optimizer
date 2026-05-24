@@ -179,13 +179,13 @@ const ForumHub: React.FC = () => {
                         >✏️</button>
                       )}
                     </div>
-                  </div>
-                  </div>
-                  </>
-                  )}
-                  </>
-                  )}
-                  </main>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </main>
 
 
       {showCreateModal && (
