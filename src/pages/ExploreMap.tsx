@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, PolylineF, MarkerF } from '@react-google-maps/api';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { GoogleMap, useJsApiLoader, PolylineF } from '@react-google-maps/api';
 import { auth, db } from '../firebase';
 import { doc, getDoc, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
